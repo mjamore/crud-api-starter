@@ -13,6 +13,11 @@ A lightweight CRUD application that be used to start any project.  It uses Expre
 |DELETE /api/posts/:id|Delete one|Deletes a specific post|
 
 
+## Using Postman
+If you use [Postman](https://www.getpostman.com/) you can click the following button to import the CRUD API Starter as a collection:  
+[![Run in Postman](https://run.pstmn.io/button.svg)](https://app.getpostman.com/run-collection/3750251-61450419-140e-4cb2-947f-e77837d4f012-T1LQfQpF)
+
+
 ## Setup
 Make sure MongoDB is <a href="https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/" target="_blanks">installed and running</a>.
 
