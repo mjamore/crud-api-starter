@@ -1,5 +1,5 @@
 # Starter CRUD API
-A lightweight CRUD application that be used to start any project.  It uses Express JS to expose HTTP endpoints that perform CRUD operations on a Mongo database.
+A lightweight CRUD application that be used to start any project.  It uses Express JS to expose HTTP endpoints that perform CRUD operations on a Dynamo database.
 
 ## Routes
 |Route|Operation|Description|
@@ -19,7 +19,6 @@ If you use [Postman](https://www.getpostman.com/) you can click the following bu
 
 
 ## Setup
-Make sure MongoDB is <a href="https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/" target="_blanks">installed and running</a>.
 
 ```
 aws configure
