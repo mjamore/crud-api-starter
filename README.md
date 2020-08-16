@@ -22,6 +22,7 @@ If you use [Postman](https://www.getpostman.com/) you can click the following bu
 Make sure MongoDB is <a href="https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/" target="_blanks">installed and running</a>.
 
 ```
+aws configure
 npm install
 ```
 

@@ -1,13 +1,20 @@
 const express = require('express');
 const monk = require('monk');
 const Joi = require('@hapi/joi');
+const AWS = require('aws-sdk');
+const uuidv4 = require('uuid').v4;
 
-const db = monk(process.env.MONGO_URI);
-const posts = db.get('posts');
+// AWS configuration
+AWS.config.update({region: 'us-east-1'});
+const docClient = new AWS.DynamoDB.DocumentClient();
+const params = {
+  TableName: "posts"
+};
+
 
 const schema = Joi.object({
-  title: Joi.string().trim().required(),
-  body: Joi.string().trim().required()
+  title: Joi.string().required(),
+  body: Joi.string().required()
 });
 
 const router = express.Router();
@@ -15,8 +22,14 @@ const router = express.Router();
 // Read all - GET /api/posts
 router.get('/', async (req, res, next) => {
   try {
-    const items = await posts.find({});
-    res.json(items);
+    docClient.scan(params, onScan);
+    function onScan(err, data) {
+      if (err) {
+        console.error("Unable to scan the table. Error JSON:", JSON.stringify(err, null, 2));
+      } else {
+        res.json(data.Items);
+      }
+    }
   } catch(error) {
     next(error);
   }
@@ -26,11 +39,19 @@ router.get('/', async (req, res, next) => {
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const post = await posts.findOne({
-      _id: id
+    const dbParams = {
+      Key: {
+        "_id": id
+      },
+      ...params
+    }
+    docClient.get(dbParams, (err, data) => {
+      if (err) {
+        console.error("Unable to get item from DynamoDB:", JSON.stringify(err, null, 2));
+      } else {
+        res.json(data);
+      }
     });
-    if (!post) return next();
-    return res.json(post);
   } catch (error) {
     next(error);
   }
@@ -40,8 +61,27 @@ router.get('/:id', async (req, res, next) => {
 router.post('/', async (req, res, next) => {
   try {
     const validatedPost = await schema.validateAsync(req.body);
-    const inserted = await posts.insert(validatedPost);
-    res.json(inserted);
+    const uuid = uuidv4();
+    const dbParams = {
+      Item: {
+        "title": validatedPost.title,
+        "body": validatedPost.body,
+        "_id": uuid
+      },
+      ...params
+    };
+    docClient.put(dbParams, (err, data) => {
+      if (err) {
+        console.error("Unable to add item to DynamoDB:", JSON.stringify(err, null, 2));
+      } else {
+        res.json({
+          message: "Success",
+          _id: uuid,
+          title: validatedPost.title,
+          body: validatedPost.body
+        });
+      }
+    });
   } catch (error) {
     next(error);
   }
@@ -52,16 +92,29 @@ router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
     const validatedPost = await schema.validateAsync(req.body);
-    const post = await posts.findOne({
-      _id: id
+    const dbParams = {
+      Key: {
+        "_id": id
+      },
+      ExpressionAttributeNames: {
+        "#T": "title",
+        "#B": "body"
+      },
+      ExpressionAttributeValues: {
+        ":t": validatedPost.title,
+        ":b": validatedPost.body
+      },
+      ReturnValues: "ALL_NEW",
+      UpdateExpression: "SET #T = :t, #B = :b",
+      ...params
+    };
+    docClient.update(dbParams, (err, data) => {
+      if (err) {
+        console.error("Unable to update item in DynamoDB:", JSON.stringify(err, null, 2));
+      } else {
+        res.json(data);
+      }
     });
-    if (!post) return next();
-    await posts.update({
-      _id: id
-    },{
-      $set: validatedPost
-    });
-    res.json(validatedPost);
   } catch (error) {
     next(error);
   }
@@ -71,15 +124,20 @@ router.put('/:id', async (req, res, next) => {
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
-    const post = await posts.findOne({
-      _id: id
-    });
-    if (!post) return next();
-    await posts.remove({
-      _id: id
-    });
-    res.json({
-      message: 'Success'
+    const dbParams = {
+      Key: {
+        "_id": id
+      },
+      ...params
+    }
+    docClient.delete(dbParams, (err, data) => {
+      if (err) {
+        console.error("Unable to detele item from DynamoDB:", JSON.stringify(err, null, 2));
+      } else {
+        res.json({
+          message: "Success"
+        });
+      }
     });
   } catch (error) {
     next(error);

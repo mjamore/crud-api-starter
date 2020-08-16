@@ -23,7 +23,7 @@ describe('Get post by id endpoint (GET /api/posts/id)', () => {
   it('should return a 200 with a valid post object when a valid post id is provided', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Get one 200 title', body: 'Get one 200 body' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(200);
@@ -34,30 +34,32 @@ describe('Get post by id endpoint (GET /api/posts/id)', () => {
           .end((err2, res2) => {
             expect(err2).to.be.null;
             expect(res2.status).to.equal(200);
-            expect(res2.body).to.have.property('title');
-            expect(res2.body).to.have.property('body');
-            expect(res2.body).to.have.property('_id');
+            expect(res2.body).to.have.nested.property('Item.title');
+            expect(res2.body).to.have.nested.property('Item.body');
+            expect(res2.body).to.have.nested.property('Item._id');
           });
       });
   });
 
-  it('should return a 404 when the post id is valid but does not exist', () => {
+  it('should return a 200 with an empty object when the post id is valid but does not exist', () => {
     request(app)
-      .get('/api/posts/5f3903fd1dcac72209191c1b')
+      .get('/api/posts/fe58d4f2-01ad-4e40-becf-d14e59251c01')
       .set('Accept', 'application/json')
       .end((err, res) => {
         expect(err).to.be.null;
-        expect(res.status).to.equal(404);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
       });
   });
 
-  it('should return a 500 when the post id is not valid', () => {
+  it('should return a 200 when the post id is not valid', () => {
     request(app)
       .get('/api/posts/invalid_id_value')
       .set('Accept', 'application/json')
       .end((err, res) => {
         expect(err).to.be.null;
-        expect(res.status).to.equal(500);
+        expect(res.status).to.equal(200);
+        expect(res.body).to.be.an('object');
       });
   });
 });
@@ -67,20 +69,21 @@ describe('Add new post endpoint (POST /api/posts)', () => {
   it('should return a 200 with the post body when a valid post is made', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Post 200 title', body: 'Post 200 body' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(200);
         expect(res.body).to.have.property('title');
         expect(res.body).to.have.property('body');
         expect(res.body).to.have.property('_id');
+        expect(res.body).to.have.property('message', 'Success');
       });
   });
 
   it('should return a 500 when an invalid property is present in the payload', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body', fakeField: 'fake data' })
+      .send({ title: 'Post 500 title - invalid property', body: 'Post 500 body - invalid property', fakeField: 'fake data' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(500);
@@ -90,7 +93,7 @@ describe('Add new post endpoint (POST /api/posts)', () => {
   it('should return a 500 when a required property is missing in the payload', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title' })
+      .send({ title: 'Post 500 title - missing payload' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(500);
@@ -100,7 +103,7 @@ describe('Add new post endpoint (POST /api/posts)', () => {
   it('should return a 500 when a required property is the wrong type in the payload', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: true })
+      .send({ title: 'Post 500 title - wrong type', body: true })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(500);
@@ -109,11 +112,11 @@ describe('Add new post endpoint (POST /api/posts)', () => {
 });
 
 // PUT /api/posts/id
-describe('Update a post endoint (PUT /api/posts/id)', () => {
+describe('Update a post endpoint (PUT /api/posts/id)', () => {
   it('should return a 200 and the updated object when a valid update is made', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Update 200 title', body: 'Update 200 body' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(200);
@@ -124,33 +127,16 @@ describe('Update a post endoint (PUT /api/posts/id)', () => {
           .end((err2, res2) => {
             expect(err2).to.be.null;
             expect(res2.status).to.equal(200);
-            expect(res2.body).to.have.property('title', 'Test Title Altered');
-            expect(res2.body).to.have.property('body', 'test body altered');
+            expect(res2.body).to.have.nested.property('Attributes.title', 'Test Title Altered');
+            expect(res2.body).to.have.nested.property('Attributes.body', 'test body altered');
           });
       });
   });
 
-  it('should return a 404 when post id is valid but does not exist', () => {
+  it('should return a 200 when the post id is not valid', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
-      .end((err, res) => {
-        expect(err).to.be.null;
-        expect(res.status).to.equal(200);
-        request(app)
-          .put('/api/posts/5f38ebaa18f477153cffd269')
-          .send({ title: 'Test Title Altered', body: 'test body altered' })
-          .end((err2, res2) => {
-            expect(err2).to.be.null;
-            expect(res2.status).to.equal(404);
-          });
-      });
-  });
-
-  it('should return a 500 when the post id is not valid', () => {
-    request(app)
-      .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Update 200 title - id not valid', body: 'Update 200 body - id not valid' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(200);
@@ -159,20 +145,19 @@ describe('Update a post endoint (PUT /api/posts/id)', () => {
           .send({ title: 'Test Title Altered', body: 'test body altered' })
           .end((err2, res2) => {
             expect(err2).to.be.null;
-            expect(res2.status).to.equal(500);
+            expect(res2.status).to.equal(200);
           });
       });
   });
 });
 
 // DELETE /api/delete/id
-describe('Delete a post endoint (DELETE /api/posts/id)', () => {
+describe('Delete a post endpoint (DELETE /api/posts/id)', () => {
   it('should return a 200 when a post is successfully deleted', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Delete 200 title', body: 'Delete 200 body' })
       .end((err, res) => {
-        expect(err).to.be.null;
         expect(res.status).to.equal(200);
         const postId = res.body._id;
         request(app)
@@ -185,26 +170,26 @@ describe('Delete a post endoint (DELETE /api/posts/id)', () => {
       });
   });
 
-  it('should return a 404 when post id is valid but does not exist', () => {
+  it('should return a 200 when post id is valid but does not exist', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Delete 200 title - id does not exist', body: 'Delete 200 body - id does not not exist' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(200);
         request(app)
-          .delete('/api/posts/5f38ebaa18f477153cffd269')
+          .delete('/api/posts/4987b0ff-e72a-4fbd-8bb9-4897ca71060b')
           .end((err2, res2) => {
             expect(err2).to.be.null;
-            expect(res2.status).to.equal(404);
+            expect(res2.status).to.equal(200);
           });
       });
   });
 
-  it('should return a 500 when the post id is not valid', () => {
+  it('should return a 200 when the post id is not valid', () => {
     request(app)
       .post('/api/posts')
-      .send({ title: 'Test Title', body: 'test body' })
+      .send({ title: 'Delete 200 title - id not valid', body: 'Delete 200 body - id not valid' })
       .end((err, res) => {
         expect(err).to.be.null;
         expect(res.status).to.equal(200);
@@ -212,7 +197,7 @@ describe('Delete a post endoint (DELETE /api/posts/id)', () => {
           .delete('/api/posts/invalid_post_id')
           .end((err2, res2) => {
             expect(err2).to.be.null;
-            expect(res2.status).to.equal(500);
+            expect(res2.status).to.equal(200);
           });
       });
   });
