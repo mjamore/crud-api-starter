@@ -14,6 +14,7 @@ A lightweight CRUD application that be used to start any project.  It uses Expre
 
 
 ## Setup
+Make sure MongoDB is <a href="https://docs.mongodb.com/manual/tutorial/install-mongodb-on-os-x/" target="_blanks">installed and running</a>.
 
 ```
 npm install

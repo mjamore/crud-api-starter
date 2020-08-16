@@ -1,40 +1,89 @@
 const express = require('express');
+const monk = require('monk');
+const Joi = require('@hapi/joi');
+
+const db = monk(process.env.MONGO_URI);
+const posts = db.get('posts');
+
+const schema = Joi.object({
+  title: Joi.string().trim().required(),
+  body: Joi.string().trim().required()
+});
 
 const router = express.Router();
 
 // Read all
-router.get('/', (req, res) => {
-  res.json({
-    message: 'hello from read all'
-  });
+router.get('/', async (req, res, next) => {
+  try {
+    const items = await posts.find({});
+    res.json(items);
+  } catch(error) {
+    next(error);
+  }
 });
 
 // Read one
-router.get('/:id', (req, res) => {
-  res.json({
-    message: 'hello from read one'
-  });
+router.get('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const post = await posts.findOne({
+      _id: id
+    });
+    if (!post) return next();
+    return res.json(post);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Create one
-router.post('/', (req, res) => {
-  res.json({
-    message: 'hello from create one'
-  });
+router.post('/', async (req, res, next) => {
+  try {
+    const validatedPost = await schema.validateAsync(req.body);
+    const inserted = await posts.insert(validatedPost);
+    res.json(inserted);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Update one
-router.put('/:id', (req, res) => {
-  res.json({
-    message: 'hello from update one'
-  });
+router.put('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const validatedPost = await schema.validateAsync(req.body);
+    const post = await posts.findOne({
+      _id: id
+    });
+    if (!post) return next();
+    await posts.update({
+      _id: id
+    },{
+      $set: validatedPost
+    });
+    res.json(validatedPost);
+  } catch (error) {
+    next(error);
+  }
 });
 
 // Delete one
-router.delete('/:id', (req, res) => {
-  res.json({
-    message: 'hello from delete one'
-  });
+router.delete('/:id', async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const post = await posts.findOne({
+      _id: id
+    });
+    if (!post) return next();
+    await posts.remove({
+      _id: id
+    });
+    res.json({
+      message: 'Success'
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 
 
