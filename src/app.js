@@ -6,6 +6,7 @@ const cors = require('cors');
 require('dotenv').config();
 
 const middlewares = require('./middlewares');
+const api = require('./api');
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.get('/', (req, res) => {
     message: 'hello from root route'
   });
 });
+
+app.use('/api', api);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);
