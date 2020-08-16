@@ -10,6 +10,9 @@ const api = require('./api');
 
 const app = express();
 
+const awsServerlessExpressMiddleware = require('aws-serverless-express/middleware');
+app.use(awsServerlessExpressMiddleware.eventContext());
+
 app.use(morgan('dev'));
 app.use(helmet());
 app.use(cors());
@@ -17,7 +20,8 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'hello from the root route'
+    message: 'hello from the root route',
+    apiGatewayEvent: req.apiGateway.event
   });
 });
 

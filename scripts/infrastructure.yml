@@ -1,0 +1,38 @@
+# This is template for creating/updating/destroying stack containing application resources can be updated, re-created or destroyed multiple times without affecting other stacks.
+# More info about AWS SAM: https://github.com/awslabs/serverless-application-model/blob/master/docs
+# More info about ALKSify: https://ghe.coxautoinc.com/CoxAuto/ALKSify
+AWSTemplateFormatVersion: "2010-09-09"
+Transform:
+  - AWS::Serverless-2016-10-31
+Description: "CRUD API in AWS using lambda and DynamoDB"
+    
+Resources:
+  CrudApiLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/app.js
+      Handler: index.handler
+      Runtime: nodejs12.x
+      Tracing: Active
+      FunctionName: crud-api
+      Role: !Ref IamRoleLambdaExecutionArn
+      Timeout:
+        10
+
+  CrudApiLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: "/aws/lambda/crud-api"
+      RetentionInDays: 90
+
+  CrudApiLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !GetAtt CrudApiLambda.Arn
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: "arn:aws:execute-api:us-east-1:337030964720:*"
+
+Outputs:
+  CrudApiLambdaArn:
+    Value: !GetAtt CrudApiLambda.Arn

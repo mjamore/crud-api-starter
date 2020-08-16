@@ -1,8 +1,6 @@
-const app = require('./app');
+'use strict'
+const awsServerlessExpress = require('aws-serverless-express')
+const app = require('./app')
+const server = awsServerlessExpress.createServer(app)
 
-const port = process.env.PORT || 5000;
-app.listen(port, () => {
-  /* eslint-disable no-console */
-  console.log(`Listening: http://localhost:${port}`);
-  /* eslint-enable no-console */
-});
+exports.handler = (event, context) => { awsServerlessExpress.proxy(server, event, context) }
