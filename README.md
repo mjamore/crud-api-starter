@@ -7,10 +7,10 @@ A lightweight CRUD application that be used to start any project.  It uses Expre
 |GET /|N/A|Loads the root route|
 |GET /api|N/A|Loads the /api route|
 |GET /api/posts|Read all|Gets all the posts|
-|GET /api/posts/:id|Read one|Gets one specific post|
+|GET /api/posts/id|Read one|Gets a specific post|
 |POST /api/posts/|Create one|Creates a new post|
-|PUT /api/posts/:id|Update one|Updates a specific post|
-|DELETE /api/posts/:id|Delete one|Deletes a specific post|
+|PUT /api/posts/id|Update one|Updates a specific post|
+|DELETE /api/posts/id|Delete one|Deletes a specific post|
 
 
 ## Using Postman
