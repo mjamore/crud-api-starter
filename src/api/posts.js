@@ -31,7 +31,7 @@ router.put('/:id', (req, res) => {
 });
 
 // Delete one
-router.post('/:id', (req, res) => {
+router.delete('/:id', (req, res) => {
   res.json({
     message: 'hello from delete one'
   });
