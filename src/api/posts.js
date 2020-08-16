@@ -12,7 +12,7 @@ const schema = Joi.object({
 
 const router = express.Router();
 
-// Read all
+// Read all - GET /api/posts
 router.get('/', async (req, res, next) => {
   try {
     const items = await posts.find({});
@@ -22,7 +22,7 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// Read one
+// Read one - GET /api/posts/id
 router.get('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -36,7 +36,7 @@ router.get('/:id', async (req, res, next) => {
   }
 });
 
-// Create one
+// Create one - POST /api/posts
 router.post('/', async (req, res, next) => {
   try {
     const validatedPost = await schema.validateAsync(req.body);
@@ -47,7 +47,7 @@ router.post('/', async (req, res, next) => {
   }
 });
 
-// Update one
+// Update one - PUT /api/posts/id
 router.put('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -67,7 +67,7 @@ router.put('/:id', async (req, res, next) => {
   }
 });
 
-// Delete one
+// Delete one - DELETE /api/posts/id
 router.delete('/:id', async (req, res, next) => {
   try {
     const { id } = req.params;

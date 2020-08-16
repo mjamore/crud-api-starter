@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.get('/', (req, res) => {
   res.json({
-    message: 'hello from root route'
+    message: 'hello from the root route'
   });
 });
 

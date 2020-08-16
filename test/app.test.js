@@ -3,7 +3,7 @@ const request = require('supertest');
 const app = require('../src/app');
 
 describe('app', () => {
-  it('responds with a not found message', (done) => {
+  it('should respond with a 404 Page Not Found message for routes that do not exist', (done) => {
     request(app)
       .get('/what-is-this-even')
       .set('Accept', 'application/json')
@@ -19,7 +19,7 @@ describe('GET /', () => {
       .set('Accept', 'application/json')
       .expect('Content-Type', /json/)
       .expect(200, {
-        message: '🦄🌈✨👋🌎🌍🌏✨🌈🦄'
+        message: 'hello from the root route'
       }, done);
   });
 });
